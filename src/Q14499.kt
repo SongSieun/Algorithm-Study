@@ -2,39 +2,34 @@ private var location = Pair(0, 0)
 private var mapSize = Pair(0, 0)
 private val dice: MutableList<Int> = mutableListOf(0, 0, 0, 0, 0, 0)
 private val map = mutableListOf<MutableList<Int>>()
+private var temp = 0
 
 fun main() {
-    val condition = readLine()
-    val conditionSplit = condition?.split(" ") ?: return
-    mapSize = Pair(conditionSplit[0].toInt(), conditionSplit[1].toInt()) // 지도의 크기
-    location = Pair(conditionSplit[2].toInt(), conditionSplit[3].toInt()) // 주사위를 놓은 곳의 좌표 x, y
-    val k = conditionSplit[4].toInt() // 명령의 갯수
+    val condition = readLine()?.split(" ") ?: return
+    mapSize = Pair(condition[0].toInt(), condition[1].toInt()) // 지도의 크기
+    location = Pair(condition[2].toInt(), condition[3].toInt()) // 주사위를 놓은 곳의 좌표 x, y
+    val k = condition[4].toInt() // 명령의 갯수
 
-    for (i in 0 until mapSize.first) {
-        getLine()?.let { map.add(it) }
+    for (i in 0 until mapSize.first) getLine()?.let { map.add(it) }
+
+    val command = readLine()?.split(" ") ?: return
+
+    command.forEach { command ->
+        if (!checkValidLocation(command)) return@forEach
+        temp = dice[0]
+        when (command.toInt()) {
+            1 -> moveEast()
+            2 -> moveWest()
+            3 -> moveNorth()
+            4 -> moveSouth()
+        }
+        println("${dice.first()}")
+        checkValue()
     }
 
-    val command = readLine()
-    val commandSplit = command?.split(" ") ?: return
-
-    commandSplit
-        .forEach { command ->
-            if(!checkValidLocation(command)) return@forEach
-            when (command.toInt()) {
-                1 -> moveUpEast()
-                2 -> moveUpWest()
-                3 -> moveUpNorth()
-                4 -> moveUpSouth()
-            }
-            checkValue()
-        }
-
 }
 
-private fun getLine(): MutableList<Int>? {
-    val line = readLine()
-    return line?.split(" ")?.map { it.toInt() }?.toMutableList()
-}
+private fun getLine(): MutableList<Int>? = readLine()?.split(" ")?.map { it.toInt() }?.toMutableList()
 
 private fun checkValidLocation(command: String): Boolean {
     var (x, y) = location
@@ -66,54 +61,32 @@ private fun checkValue() {
     }
 }
 
-// 주사위 윗면 0, 동 1, 서 2, 남 3, 북 4, 밑면 5
-private fun moveUpNorth() {
-    var temp: Int = dice[0]
+private fun moveNorth() = dice.apply {
+    set(0, dice[3])
+    set(3, dice[5])
+    set(5, dice[4])
+    set(4, temp)
+}
 
-    dice.apply {
-        set(0, dice[3])
-        set(3, dice[5])
-        set(5, dice[4])
-        set(4, temp)
-    }
-    println("${dice.first()}")
+private fun moveSouth() = dice.apply {
+    set(0, dice[4])
+    set(4, dice[5])
+    set(5, dice[3])
+    set(3, temp)
 }
 
 
-private fun moveUpSouth() {
-    var temp: Int = dice[0]
-
-    dice.apply {
-        set(0, dice[4])
-        set(4, dice[5])
-        set(5, dice[3])
-        set(3, temp)
-    }
-    println("${dice.first()}")
+private fun moveWest() = dice.apply {
+    set(0, dice[2])
+    set(2, dice[5])
+    set(5, dice[1])
+    set(1, temp)
 }
 
 
-private fun moveUpWest() {
-    var temp: Int = dice[0]
-
-    dice.apply {
-        set(0, dice[2])
-        set(2, dice[5])
-        set(5, dice[1])
-        set(1, temp)
-    }
-    println("${dice.first()}")
-}
-
-
-private fun moveUpEast() {
-    var temp: Int = dice[0]
-
-    dice.apply {
-        set(0, dice[1])
-        set(1, dice[5])
-        set(5, dice[2])
-        set(2, temp)
-    }
-    println("${dice.first()}")
+private fun moveEast() = dice.apply {
+    set(0, dice[1])
+    set(1, dice[5])
+    set(5, dice[2])
+    set(2, temp)
 }
